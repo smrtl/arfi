@@ -1,0 +1,18 @@
+{
+  "extends": "next/core-web-vitals",
+
+  "rules": {
+    "quotes": ["error", "double"],
+    "import/newline-after-import": "error",
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
+        "groups": [
+          ["builtin", "external"],
+          ["internal", "parent", "sibling"]
+        ]
+      }
+    ]
+  }
+}
