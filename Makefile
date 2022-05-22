@@ -17,3 +17,11 @@ test:
 .PHONY: watch
 watch:
 	@npx ava --watch tests/*$(ONLY)*.js
+
+.PHONY: clean
+clean:
+	rm -rf .next node_modules package.lock.json
+
+.PHONY: install
+install:
+	@npm i
