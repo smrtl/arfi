@@ -7,12 +7,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "ava",
-    "watch": "ava --watch"
+    "test": "jest --watch",
+    "test:ci": "jest --ci"
   },
   "dependencies": {
     "@mantine/core": "^4.2.6",
+    "@mantine/form": "^4.2.6",
     "@mantine/next": "^4.2.6",
+    "axios": "^0.27.2",
     "next": "^12.1.6",
     "node-input-validator": "^4.5.0",
     "react": "^18.1.0",
@@ -23,8 +25,8 @@
   },
   "devDependencies": {
     "@types/react": "^18.0.9",
-    "ava": "^4.2.0",
     "eslint": "8.16.0",
-    "eslint-config-next": "12.1.6"
+    "eslint-config-next": "12.1.6",
+    "jest": "^28.1.0"
   }
 }

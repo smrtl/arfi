@@ -3,3 +3,10 @@ node_modules/
 
 # Next.js
 .next/
+.env.local
+
+# tests
+data/test/
+
+# dev
+*.dev.*

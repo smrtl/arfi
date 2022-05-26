@@ -2,7 +2,7 @@
   "extends": "next/core-web-vitals",
 
   "rules": {
-    "quotes": ["error", "double"],
+    "quotes": ["error", "double", { "avoidEscape": true }],
     "import/newline-after-import": "error",
     "import/order": [
       "error",

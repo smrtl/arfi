@@ -1,26 +1,26 @@
 .PHONY: dev
 dev:
-	@npx next dev
+	@npm run dev
 
 .PHONY: build
 build:
-	@npx next build
+	@npm run build
 
 .PHONY: serve
 serve: build
-	@npx next start
+	@npm start
 
 .PHONY: test
 test:
-	@npx ava
+	@npm run test:ci
 
 .PHONY: watch
 watch:
-	@npx ava --watch tests/*$(ONLY)*.js
+	@npm run test
 
 .PHONY: clean
 clean:
-	rm -rf .next node_modules package.lock.json
+	rm -rf .next node_modules package-lock.json
 
 .PHONY: install
 install:
