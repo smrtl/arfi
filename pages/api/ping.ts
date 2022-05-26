@@ -1,5 +1,5 @@
-import endpoint from "../../lib/endpoint";
+import endpoint, { Success } from "@/lib/endpoint";
 
 export default endpoint({
-  get: () => "pong",
+  get: () => Success("pong"),
 });

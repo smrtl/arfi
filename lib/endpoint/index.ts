@@ -1,9 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Validator } from "node-input-validator";
 
-import { DEBUG } from "./settings";
+import { DEBUG } from "@/lib/settings";
+import { EndpointResponse } from "./responses";
 
-type EnpointHandler = (params: EndpointParameters) => any;
+export * from "./responses";
+
+// See validation rules at:
+// https://www.npmjs.com/package/node-input-validator#rules
+
+type EnpointHandler = (
+  params: EndpointParameters
+) => void | Promise<void> | EndpointResponse | Promise<EndpointResponse>;
 
 interface ParametersDefinition {
   [field: string]: string;
@@ -20,13 +28,7 @@ interface EndpointDefinition {
   get?: EnpointHandler;
 }
 
-const formatJsonSuccess = (data: any) => ({
-  success: true,
-  data,
-});
-
 const formatJsonError = (err: Error | String, errors?: Array<string>) => ({
-  success: false,
   error: err.toString ? err.toString() : err,
   errors,
 });
@@ -50,7 +52,9 @@ export default function endpoint(def: EndpointDefinition) {
       const handler: EnpointHandler = def[req.method.toLowerCase()];
       if (!handler) return res.status(405).json(formatJsonError("Method Not Allowed"));
 
-      res.status(200).json(formatJsonSuccess(await handler(params)));
+      const response = await handler(params);
+      if (response) res.status(response.status).json(response.body);
+      else res.status(204).end();
     } catch (err) {
       if (DEBUG) console.error(err);
       res.status(500).json(formatJsonError(err));
