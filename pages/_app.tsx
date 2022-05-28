@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
   ActionIcon,
   AppShell,
-  Container,
   Group,
   Header,
   MantineProvider,
@@ -14,30 +13,35 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { useState } from "react";
-import { Sun, MoonStars, DeviceAnalytics, GitPullRequest } from "tabler-icons-react";
+import { Sun, MoonStars, PackgeImport, Home } from "tabler-icons-react";
+import Link from "next/link";
 
 const Logo = () => <Image src="/logo.svg" width={96} height={31} layout="fixed" alt="arfi" />;
-const NavItem = ({ Icon, label }) => (
-  <UnstyledButton
-    sx={(theme) => ({
-      display: "block",
-      width: "100%",
-      padding: theme.spacing.xs,
-      borderRadius: theme.radius.sm,
-      color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
 
-      "&:hover": {
-        backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[0],
-      },
-    })}
-  >
-    <Group spacing="sm">
-      <ThemeIcon variant="light">
-        <Icon size={16} />
-      </ThemeIcon>
-      <Text size="sm">{label}</Text>
-    </Group>
-  </UnstyledButton>
+const NavItem = ({ Icon, label, href }) => (
+  <Link href={href}>
+    <UnstyledButton
+      sx={(theme) => ({
+        display: "block",
+        width: "100%",
+        padding: theme.spacing.xs,
+        borderRadius: theme.radius.sm,
+        color: theme.colorScheme === "dark" ? theme.colors.dark[0] : theme.black,
+
+        "&:hover": {
+          backgroundColor:
+            theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.colors.gray[1],
+        },
+      })}
+    >
+      <Group spacing="sm">
+        <ThemeIcon variant="light">
+          <Icon size={16} />
+        </ThemeIcon>
+        <Text size="sm">{label}</Text>
+      </Group>
+    </UnstyledButton>
+  </Link>
 );
 
 export default function App(props: AppProps) {
@@ -56,7 +60,17 @@ export default function App(props: AppProps) {
         withNormalizeCSS
         theme={{ colorScheme: darkTheme ? "dark" : "light" }}
         defaultProps={{
-          Title: { mb: "xl" },
+          Paper: { p: "md" },
+        }}
+        styles={{
+          Title: {
+            root: {
+              whiteSpace: "nowrap",
+            },
+          },
+          Button: {
+            icon: { width: 16 },
+          },
         }}
       >
         <AppShell
@@ -72,16 +86,17 @@ export default function App(props: AppProps) {
             </Header>
           }
           navbar={
-            <Navbar width={{ base: 200 }} p="md">
+            <Navbar width={{ base: 200, lg: 300 }} hidden={true} hiddenBreakpoint="sm" p="md">
               <Navbar.Section>
-                <NavItem Icon={DeviceAnalytics} label="Analyze stuff" />
-                <NavItem Icon={GitPullRequest} label="This is a link" />
+                <NavItem Icon={Home} label="Home" href="/" />
+                <NavItem Icon={PackgeImport} label="Contracts" href="/contracts" />
               </Navbar.Section>
             </Navbar>
           }
           styles={(theme) => ({
             main: {
-              backgroundColor: darkTheme ? theme.colors.dark[8] : theme.colors.gray[0],
+              backgroundColor: darkTheme ? theme.colors.dark[8] : theme.colors.gray[1],
+              overflowX: "hidden",
             },
           })}
         >

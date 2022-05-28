@@ -1,22 +1,24 @@
-import { Container, Button, Group, Stack, Textarea, Title, Paper } from "@mantine/core";
+import { Button, Group, Stack, Title, Paper, Code } from "@mantine/core";
 
-import useApi from "../lib/hooks/api";
+import { useSendApi } from "../lib/hooks/api";
 
 const Ping = () => {
-  const { data, error, isValidating, mutate } = useApi("ping");
+  const { data, error, isLoading, send } = useSendApi("ping");
 
   const message = () => {
-    if (error) return "Error :(";
-    if (isValidating) return "Loading...";
-    return JSON.stringify(data);
+    if (error) return "(error)";
+    if (isLoading) return "(loading ...)";
+    return data ? JSON.stringify(data) : "(no data)";
   };
 
   return (
     <Group align="start">
-      <Button onClick={() => mutate()} disabled={isValidating}>
+      <Button onClick={() => send()} loading={isLoading}>
         Ping
       </Button>
-      <Textarea disabled value={message()} style={{ width: 400 }}></Textarea>
+      <Code block sx={{ flexGrow: 1 }}>
+        {message()}
+      </Code>
     </Group>
   );
 };
@@ -25,7 +27,7 @@ export default function Index() {
   return (
     <>
       <Title>Hello World</Title>
-      <Paper p="md">
+      <Paper>
         <Stack>
           <Ping />
         </Stack>
