@@ -37,6 +37,11 @@ interface ContractMetadata {
   hashes: string[];
 }
 
+interface ContractMethod {
+  address: string;
+  abi: AbiItem;
+}
+
 interface ContractIndex {
   [address: string]: ContractMetadata;
 }
@@ -107,7 +112,9 @@ export default class ContractStore {
     const hashIndex = await this._hashIndex();
 
     const title = sourceCode ? parseContractTitle(sourceCode) : undefined;
-    const hashes: string[] = abi.map(web3.eth.abi.encodeFunctionSignature);
+    const hashes: Array<string | null> = abi.map((item: AbiItem) =>
+      item && item.type === "function" ? web3.eth.abi.encodeFunctionSignature(item) : null
+    );
 
     // store source code & abi
     if (sourceCode) await writeString(this.sourceCodePath(address), sourceCode);
@@ -115,8 +122,10 @@ export default class ContractStore {
 
     // update hashIndex
     hashes.forEach((hash, index) => {
-      if (!hashIndex[hash]) hashIndex[hash] = {};
-      hashIndex[hash][address] = index;
+      if (hash) {
+        if (!hashIndex[hash]) hashIndex[hash] = {};
+        hashIndex[hash][address] = index;
+      }
     });
     await writeJson(this._hashIndexPath, hashIndex);
 
@@ -144,7 +153,7 @@ export default class ContractStore {
     return await readString(this.sourceCodePath(address));
   }
 
-  async method(hash: string, address: string): Promise<AbiItem> {
+  async method(hash: string, address: string): Promise<ContractMethod> {
     const hashIndex = await this._hashIndex();
     if (!hashIndex[hash]) throw new Error(`Method not found: ${hash}`);
 
@@ -153,17 +162,18 @@ export default class ContractStore {
       throw new Error(`The method '${hash}' not found in contract: ${address}`);
 
     const abi = await this.abi(address);
-    return abi[contracts[address]];
+    return { address, abi: abi[contracts[address]] };
   }
 
-  async methods(hash: string): Promise<AbiItem[]> {
+  async methods(hash: string): Promise<ContractMethod[]> {
     const hashIndex = await this._hashIndex();
     if (!hashIndex[hash]) throw new Error(`Method not found: ${hash}`);
 
     return Promise.all(
-      Object.entries(hashIndex[hash]).map(
-        async ([address, index]) => (await this.abi(address))[index]
-      )
+      Object.entries(hashIndex[hash]).map(async ([address, index]) => ({
+        address,
+        abi: (await this.abi(address))[index],
+      }))
     );
   }
 }

@@ -34,7 +34,11 @@ test("add a contract and read it", async () => {
   await expect(store.method("toto", rawContract.address)).rejects.toThrow();
   await expect(store.methods("toto")).rejects.toThrow();
   await expect(store.method("0x0f28c97d", "bad")).rejects.toThrow();
-  expect(await store.method("0x252dba42", rawContract.address)).toHaveProperty("name", "aggregate");
+
+  const method = await store.method("0x252dba42", rawContract.address);
+  expect(method).toHaveProperty("address", rawContract.address);
+  expect(method.abi).toHaveProperty("name", "aggregate");
+
   expect(await store.methods("0x252dba42").then((r) => r.length)).toBe(1);
 
   expect(await store.sourceCode(rawContract.address)).toContain("@author Michael Elliot");
@@ -46,7 +50,11 @@ test("add the same contract and read it again", async () => {
 
   const contract = await store.get(rawContract.address);
   expect(contract.alias).toStrictEqual(rawContract.alias);
-  expect(await store.method("0x252dba42", rawContract.address)).toHaveProperty("name", "aggregate");
+
+  const method = await store.method("0x252dba42", rawContract.address);
+  expect(method).toHaveProperty("address", rawContract.address);
+  expect(method.abi).toHaveProperty("name", "aggregate");
+
   expect(await store.methods("0x252dba42").then((r) => r.length)).toBe(1);
 });
 

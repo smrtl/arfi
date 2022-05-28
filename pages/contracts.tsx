@@ -1,69 +1,22 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
-  Title,
   Code,
   Text,
   Group,
   Button,
-  Space,
   Drawer,
   TextInput,
   Stepper,
   Textarea,
   JsonInput,
 } from "@mantine/core";
-import { ArrowRight, Plus, Trash, X } from "tabler-icons-react";
+import { ArrowRight, Plus, X } from "tabler-icons-react";
 import { useForm } from "@mantine/form";
 
 import { useApi, useSendApi } from "../lib/hooks/api";
-
-const ContractDetailDrawer = ({ contract, onClose, mutateContracts }) => {
-  const { address = "", alias = "", name = "", title = "" } = contract || {};
-  const { isLoading: isDeleting, del } = useSendApi(`/contracts/${address}`);
-
-  const deleteContract = () => {
-    del().then(() => {
-      mutateContracts();
-      onClose();
-    });
-  };
-
-  return (
-    <Drawer
-      title="Contract Detail"
-      withCloseButton={false}
-      closeOnClickOutside={!isDeleting}
-      closeOnEscape={!isDeleting}
-      opened={!!contract}
-      onClose={onClose}
-      padding="lg"
-      size={500}
-      position="right"
-    >
-      <TextInput label="Address" value={address} readOnly />
-      <TextInput label="Alias" value={alias} readOnly />
-      <TextInput label="Title" value={title} readOnly />
-      <TextInput label="Name" value={name} readOnly />
-      {/* <JsonInput label="ABI" value={"[]"} readOnly minRows={10} />
-      <Textarea
-        label="Source Code"
-        value={"sourceCode"}
-        readOnly
-        minRows={10}
-        styles={{ input: { fontFamily: "monospace", fontSize: 12 } }}
-      /> */}
-      <Group position="right" pt="md">
-        <Button leftIcon={<Trash />} loading={isDeleting} color="red" onClick={deleteContract}>
-          Delete
-        </Button>
-        <Button leftIcon={<X />} onClick={onClose} disabled={isDeleting}>
-          Close
-        </Button>
-      </Group>
-    </Drawer>
-  );
-};
+import PageTitle from "@/components/PageTitle";
+import ALink from "@/components/ALink";
 
 const ImportContractDrawer = ({ opened, onClose, mutateContracts }) => {
   const {
@@ -132,6 +85,7 @@ const ImportContractDrawer = ({ opened, onClose, mutateContracts }) => {
           <form onSubmit={step1Form.onSubmit(getContractData)}>
             <TextInput
               label="Contract address"
+              required
               placeholder="0x0000000000000000000000000000000000000000"
               {...step1Form.getInputProps("address")}
             />
@@ -152,7 +106,7 @@ const ImportContractDrawer = ({ opened, onClose, mutateContracts }) => {
         </Stepper.Step>
         <Stepper.Step label="Review">
           <form onSubmit={step2Form.onSubmit(importContract)}>
-            <TextInput label="Name" {...step2Form.getInputProps("name")} />
+            <TextInput label="Name" readOnly {...step2Form.getInputProps("name")} />
             <JsonInput label="ABI" minRows={10} readOnly {...step2Form.getInputProps("abi")} />
             <Textarea
               label="Source Code"
@@ -161,7 +115,7 @@ const ImportContractDrawer = ({ opened, onClose, mutateContracts }) => {
               readOnly
               {...step2Form.getInputProps("sourceCode")}
             />
-            <TextInput label="Alias" {...step2Form.getInputProps("alias")} />
+            <TextInput label="Alias" required {...step2Form.getInputProps("alias")} />
             <Group position="right" pt="md">
               <Button
                 leftIcon={<X />}
@@ -185,17 +139,14 @@ const ImportContractDrawer = ({ opened, onClose, mutateContracts }) => {
 export default function Contracts() {
   const { data: contracts, mutate: mutateContracts } = useApi("contracts");
   const [importOpened, setImportOpened] = useState(false);
-  const [selectedContract, setSelectedContract] = useState(null);
 
   return (
     <div>
-      <Group position="apart" align="flex-end" px="xs">
-        <Title>Contracts</Title>
+      <PageTitle label="Contracts">
         <Button leftIcon={<Plus />} onClick={() => setImportOpened(true)}>
           Import Contract
         </Button>
-      </Group>
-      <Space h="xl" />
+      </PageTitle>
       {contracts && (
         <Table highlightOnHover>
           <thead>
@@ -208,19 +159,19 @@ export default function Contracts() {
             {contracts.map((contract: any) => {
               const { address, title, alias } = contract;
               return (
-                <tr
-                  key={address}
-                  onClick={() => setSelectedContract(contract)}
-                  style={{ cursor: "pointer" }}
-                >
+                <tr key={address}>
                   <td>
-                    <Text size="sm">{title}</Text>
-                    <Text color="dimmed" size="sm">
-                      {alias}
-                    </Text>
+                    <ALink href={`/contracts/${address}`}>
+                      <Text size="sm">{title}</Text>
+                      <Text color="dimmed" size="sm">
+                        {alias}
+                      </Text>
+                    </ALink>
                   </td>
                   <td valign="top">
-                    <Code>{address}</Code>
+                    <ALink href={`/contracts/${address}`}>
+                      <Code>{address}</Code>
+                    </ALink>
                   </td>
                 </tr>
               );
@@ -228,11 +179,6 @@ export default function Contracts() {
           </tbody>
         </Table>
       )}
-      <ContractDetailDrawer
-        contract={selectedContract}
-        onClose={() => setSelectedContract(null)}
-        mutateContracts={mutateContracts}
-      />
       <ImportContractDrawer
         opened={importOpened}
         onClose={() => setImportOpened(false)}
