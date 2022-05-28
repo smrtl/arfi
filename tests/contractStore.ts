@@ -49,3 +49,11 @@ test("add the same contract and read it again", async () => {
   expect(await store.method("0x252dba42", rawContract.address)).toHaveProperty("name", "aggregate");
   expect(await store.methods("0x252dba42").then((r) => r.length)).toBe(1);
 });
+
+test("delete a contract", async () => {
+  const store = new ContractStore(testPath);
+  await store.delete(rawContract.address);
+
+  await expect(store.get(rawContract.address)).rejects.toThrow();
+  await expect(store.methods("0x252dba42")).rejects.toThrow();
+});

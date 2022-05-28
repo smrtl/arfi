@@ -3,6 +3,8 @@ import path from "path";
 import Web3 from "web3";
 import { AbiItem } from "web3-utils";
 
+import { isObjectEmpty } from "./utils/lang";
+
 const web3 = new Web3();
 
 const readString = (file: string) => fs.promises.readFile(file, { encoding: "utf8" });
@@ -75,6 +77,25 @@ export default class ContractStore {
 
   sourceCodePath(address: string): string {
     return path.join(this._sourceCodePath, `${address}.json`);
+  }
+
+  async delete(address: string): Promise<void> {
+    const index = await this._index();
+    if (index[address]) {
+      const hashIndex = await this._hashIndex();
+      const hashes = index[address].hashes;
+
+      hashes.forEach((hash) => {
+        if (hashIndex[hash]) {
+          delete hashIndex[hash][address];
+          if (isObjectEmpty(hashIndex[hash])) delete hashIndex[hash];
+        }
+      });
+      await writeJson(this._hashIndexPath, hashIndex);
+
+      delete index[address];
+      await writeJson(this._indexPath, index);
+    }
   }
 
   async add(contract: RawContract): Promise<void> {
